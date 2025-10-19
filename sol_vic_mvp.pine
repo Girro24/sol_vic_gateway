@@ -1,0 +1,19 @@
+//@version=5
+indicator("SOL VIC-style Signals (MVP)", overlay=true)
+
+emaLen = input.int(50, "EMA len")
+ema = ta.ema(close, emaLen)
+rsi = ta.rsi(close, 14)
+
+down7d = (close - close[7]) / close[7] <= -0.15
+up7d   = (close - close[7]) / close[7] >=  0.20
+
+bull = (down7d and rsi < 35 and close > ema) or (ta.crossover(close, ema) and rsi > 40)
+bear = (up7d and rsi > 70 and ta.crossunder(close, ta.ema(close,20)))
+
+plot(ema, title="EMA", linewidth=2)
+plotshape(bull, title="BUY", style=shape.labelup, text="BUY", location=location.belowbar, size=size.tiny)
+plotshape(bear, title="EXIT", style=shape.labeldown, text="EXIT", location=location.abovebar, size=size.tiny)
+
+alertcondition(bull, title="BUY_SOL", message='{"key":"change_me_super_long_secret","action":"buy","symbol":"SOL-USDC","reason":"VIC_bull","usd":25}')
+alertcondition(bear, title="EXIT_SOL", message='{"key":"change_me_super_long_secret","action":"sell","symbol":"SOL-USDC","reason":"VIC_bear","usd":25}')
